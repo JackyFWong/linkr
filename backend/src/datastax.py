@@ -169,5 +169,6 @@ def change_connection(username1, username2):
         add_connection(username1, username2)
     else:
         print("inside there")
+        # WHY REMOVING CONNECTION?!?!?!?
         remove_connection(username1, username2)
     return True
