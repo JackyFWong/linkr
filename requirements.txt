@@ -3,3 +3,4 @@ passlib
 cassandra-driver
 gunicorn
 eventlet
+flask_cors
