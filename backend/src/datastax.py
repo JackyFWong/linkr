@@ -152,17 +152,22 @@ def remove_connection(user1, user2):
     return True
 
 def get_connections(username):
+    print('inside get_connections')
     url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v2/keyspaces/{ksid}/connections/{username}"
     headers = {
         "Accept": "application/json",
         "X-Cassandra-Token": auth_token,
     }
     response = requests.request("GET", url, headers=headers)
+    print(response.json())
+    print(response.headers)
     return [x['user2'] for x in response.json()["data"]]
 
 def change_connection(username1, username2):
     if username2 not in get_connections(username1):
+        print("inside here")
         add_connection(username1, username2)
     else:
+        print("inside there")
         remove_connection(username1, username2)
     return True

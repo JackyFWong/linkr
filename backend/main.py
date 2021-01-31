@@ -16,8 +16,8 @@ from passlib.hash import sha256_crypt
 from src import datastax
 
 app = Flask(__name__, template_folder="./templates", static_folder="./static")
-cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
+cors = CORS(app)
 app.secret_key = b"elink_secret_key"
 
 @app.route("/")
@@ -86,12 +86,13 @@ def widget():
     return render_template(
         "pages/widget.html",
         context={
-            "url_username": session["username"].replace(" ", "%20")
+            "url_username": session["username"].replace(" ", "%20"),
         }
     )
 
 @app.route("/widget_info/<username>")
 def widget_template(username):
+    print('here!!!')
     conns = {
         user: {
             "full_name": user,
@@ -99,7 +100,8 @@ def widget_template(username):
             "personal_website": datastax.get_website(username),
         }  for user in datastax.get_connections(username)
     }
-    return render_template(
+    print(conns)
+    t = render_template(
         "widget.js",
         context={
             'full_name': username,
@@ -108,6 +110,8 @@ def widget_template(username):
             'connections': conns,
         }
     )
+    print(t)
+    return t
 
 @app.route("/signup_filled", methods=["POST"])
 def login_or_register():
@@ -148,17 +152,23 @@ def get_connections():
         connections[user] = datastax.get_website(user)
     return jsonify(connections)
 
-@app.route("/change_connection")
+@app.route("/change_connection", methods=["POST"])
 def change_connection():
-    print("HERE!")
-    other_username = request.json.get("username", "")
+    print("change_connection")
+    print(request.get_json())
+    username = request.json.get("username", "")
     #password = request.json.get("username2", "")
-    #other_user = request.json.get("other_user", "")
+    other_user = request.json.get("other_user", "")
     #if datastax.check_credentials(username, password):
-    username = session["username"]
-    print(username, other_username)
+    print(session)
+    #username = session["username"]
+    #print(username, other_username)
     datastax.change_connection(username, other_user)
-    return jsonify({"worked": True})
+    response = jsonify({"worked": True})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    print(response)
+    print(response.headers)
+    return response
     #return jsonify({"worked": False})
 
 if __name__ == "__main__":

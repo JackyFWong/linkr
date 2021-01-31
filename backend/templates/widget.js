@@ -1,23 +1,23 @@
-var context = {{context}};
-var username = context.username;
+var context = {{ context }};
+var username = context.full_name;
+var other_user = Object.keys(context.connections)[0];
 
 function connect_users(user) {
-	$.post("https://127.0.0.1:5000/change_connection", {
+	/*$.post("https://127.0.0.1:5000/change_connection", {
 		"username": user
-	});
-	/*
+	});*/
 	$.ajax({
         type: "POST",
-        url: "https://127.0.0.1:5000/change_connection",
-        data:{"username": user},
+        url: "http://127.0.0.1:5000/change_connection",
+		data: JSON.stringify({"username": user, "other_user": other_user}),
+		contentType: "application/json",
         //async:true,
         //dataType : 'jsonp',   //you may use jsonp for cross origin request
         crossDomain:true,
-		/*
         success: function(data, status, xhr) {
             alert(xhr.getResponseHeader('Location'));
         }
-		});*/
+		});
 }
 
 $(document).ready( () => {
@@ -25,7 +25,7 @@ $(document).ready( () => {
 	var widget_div = $("#elink_template");
 	
 	var header = $("<h3>"+context.full_name+"</h3>");
-	var connect_button = $("<button onclick='connect_users(username)'>Connect</button>");
+	var connect_button = $("<button onclick='connect_users(\""+username+"\")'>Connect</button>");
 	
 	widget_div.append(header);
 	widget_div.append(connect_button);
