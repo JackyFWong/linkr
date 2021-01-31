@@ -1,3 +1,5 @@
 Flask
 passlib
 cassandra-driver
+gunicorn
+eventlet
