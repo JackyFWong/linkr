@@ -3,7 +3,8 @@
 {% block content %}
 <div class="mt-5 container d-flex justify-content-center align-self-center">
     <div class="row">
-        <h2>Profile</h2>
+        <h2>Profile for</h2>
+        <h4><em>{{ context.email }}</em></h4>
         <form action="/update_customization" method="post">
             <!--
             <div class="form-group">
@@ -12,8 +13,8 @@
             </div>
 			-->
             <div class="form-group m-2">
-                <label for="email">Email</label>
-                <input id="email" name="email" type="text" class="form-control" placeholder="{{ context.email }}">
+                <label for="name">Name</label>
+                <input id="name" name="name" type="text" class="form-control" placeholder="{{ context.name }}">
             </div>
             <div class="form-group m-2">
                 <label for="picture_src">Picture URL</label>

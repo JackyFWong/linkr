@@ -2,173 +2,231 @@ from passlib.hash import sha256_crypt
 import requests
 import json
 
-salt = "!LINKEDIN"
-default_website = "https://cuhack.it/"
+SALT = "!LINKEDIN"
 
-dbid = "36978354-cbaf-430d-8995-12d491564a45"
-rid = "us-east1"
-ksid = "e_link"
+DBID = "36978354-cbaf-430d-8995-12d491564a45"
+RID = "us-east1"
+KSID = "e_link"
 
-auth_url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v1/auth"
-auth_headers = {
+USER_TBL = "users_new"
+CONN_TBL = "conn_new"
+
+AUTH_URL = f"https://{DBID}-{RID}.apps.astra.datastax.com/api/rest/v1/auth"
+AUTH_HEADERS = {
     "Accept": "application/json",
     "Content-Type": "application/json",
     "X-Cassandra-Request-Id":"7d86a16e-9407-4089-9f8c-cb968e89b2cc"
 }
-auth_body = {
+AUTH_BODY = {
     "username":"e_link",
     "password":"Z8f7*yFvZVoPWYsqLN8q"
 }
-auth_response = requests.post(auth_url, headers=auth_headers, data=json.dumps(auth_body))
+auth_response = requests.post(AUTH_URL, headers=AUTH_HEADERS, data=json.dumps(AUTH_BODY))
 auth_token = auth_response.json()["authToken"]
 
 
-def username_free(username):
-    url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v2/keyspaces/{ksid}/users/{username}"
+def _verify(r: requests.Request, code: int):
+    if r.status_code == code:
+        return r.json()
+    return None
+
+def email_free(email):
+    url = f"https://{DBID}-{RID}.apps.astra.datastax.com/api/rest/v2/keyspaces/{KSID}/{USER_TBL}/{email}"
     headers = {
         "Accept": "application/json",
         "X-Cassandra-Token": auth_token,
     }
-    response = requests.request("GET", url, headers=headers)
-    print(response.json())
-    return response.json()["count"] == 0
+    r = requests.get(url, headers=headers)
+    body = _verify(r, 200)
+    if body is None:
+        return None
+    return body["count"] == 0
 
-def has_account(username):
-    return not username_free(username)
+def has_account(email):
+    return not email_free(email)
 
-def make_account(username, password, email, website, image):
-    password = sha256_crypt.encrypt(salt+password+salt)
-    url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v2/keyspaces/{ksid}/users/"
+def make_account(email, image, name, password, website):
+    password = sha256_crypt.encrypt(SALT+password+SALT)
+    url = f"https://{DBID}-{RID}.apps.astra.datastax.com/api/rest/v2/keyspaces/{KSID}/{USER_TBL}/"
     headers = {
         "Accept": "application/json",
+        "Content-Type": "application/json",
         "X-Cassandra-Token": auth_token,
     }
     data = {
-        "username": username,
-        "password": password,
         "email": email,
-        "website": website,
-        "image": image
+        "image": image,
+        "name": name,
+        "password": password,
+        "website": website
     }
-    response = requests.request("POST", url, headers=headers, data=json.dumps(data))
-    return True
+    r = requests.post(url, headers=headers, data=json.dumps(data))
+    # special verification
+    if r.status_code == 201:
+        return True
+    elif r.status_code == 409:  # account already exists
+        return False
+    else:
+        return None
 
-def check_credentials(username, password):
-    url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v2/keyspaces/{ksid}/users/{username}"
+def check_credentials(email, password):
+    url = f"https://{DBID}-{RID}.apps.astra.datastax.com/api/rest/v2/keyspaces/{KSID}/{USER_TBL}/{email}"
     headers = {
         "Accept": "application/json",
         "X-Cassandra-Token": auth_token,
     }
-    response = requests.request("GET", url, headers=headers)
-    return sha256_crypt.verify(salt+password+salt, response.json()["data"][0]["password"])
+    r = requests.get(url, headers=headers)
+    body = _verify(r, 200)
+    if body is None:
+        return None
+    return sha256_crypt.verify(SALT+password+SALT, body["data"][0]["password"])
 
-def set_image(username, image):
-    url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v2/keyspaces/{ksid}/users/{username}"
+def set_image(email, image):
+    url = f"https://{DBID}-{RID}.apps.astra.datastax.com/api/rest/v2/keyspaces/{KSID}/{USER_TBL}/{email}"
     headers = {
         "Accept": "application/json",
+        "Content-Type": "application/json",
         "X-Cassandra-Token": auth_token,
     }
     data = {
         "image": image
     }
-    response = requests.request("PATCH", url, headers=headers, data=json.dumps(data))
-    return response.json()
+    r = requests.patch(url, headers=headers, data=json.dumps(data))
+    body = _verify(r, 200)
+    if body is None:
+        return None
+    return body
 
-def get_image(username):
-    url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v2/keyspaces/{ksid}/users/{username}"
+def get_image(email):
+    url = f"https://{DBID}-{RID}.apps.astra.datastax.com/api/rest/v2/keyspaces/{KSID}/{USER_TBL}/{email}"
     headers = {
         "Accept": "application/json",
         "X-Cassandra-Token": auth_token,
     }
-    response = requests.request("GET", url, headers=headers)
-    return response.json()["data"][0]["image"]
+    r = requests.request("GET", url, headers=headers)
+    body = _verify(r, 200)
+    if body is None:
+        return None
+    return body["data"][0]["image"]
 
-def set_website(username, website):
-    url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v2/keyspaces/{ksid}/users/{username}"
+def set_website(email, website):
+    url = f"https://{DBID}-{RID}.apps.astra.datastax.com/api/rest/v2/keyspaces/{KSID}/{USER_TBL}/{email}"
     headers = {
         "Accept": "application/json",
+        "Content-Type": "application/json",
         "X-Cassandra-Token": auth_token,
     }
     data = {
         "website": website
     }
-    response = requests.request("PATCH", url, headers=headers, data=json.dumps(data))
-    return response.json()
+    r = requests.patch(url, headers=headers, data=json.dumps(data))
+    body = _verify(r, 200)
+    if body is None:
+        return None
+    return body
 
-def get_website(username):
-    url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v2/keyspaces/{ksid}/users/{username}"
+def get_website(email):
+    url = f"https://{DBID}-{RID}.apps.astra.datastax.com/api/rest/v2/keyspaces/{KSID}/{USER_TBL}/{email}"
     headers = {
         "Accept": "application/json",
         "X-Cassandra-Token": auth_token,
     }
-    response = requests.request("GET", url, headers=headers)
-    return response.json()["data"][0]["website"]
+    r = requests.get(url, headers=headers)
+    body = _verify(r, 200)
+    if body is None:
+        return None
+    return body["data"][0]["website"]
 
-def set_email(username, email):
-    url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v2/keyspaces/{ksid}/users/{username}"
+def set_name(email, name):
+    url = f"https://{DBID}-{RID}.apps.astra.datastax.com/api/rest/v2/keyspaces/{KSID}/{USER_TBL}/{email}"
     headers = {
         "Accept": "application/json",
+        "Content-Type": "application/json",
         "X-Cassandra-Token": auth_token,
     }
     data = {
-        "email": email
+        "name": name
     }
-    response = requests.request("PATCH", url, headers=headers, data=json.dumps(data))
-    return response.json()
+    r = requests.patch(url, headers=headers, data=json.dumps(data))
+    body = _verify(r, 200)
+    if body is None:
+        return None
+    return body
 
-def get_email(username):
-    url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v2/keyspaces/{ksid}/users/{username}"
+def get_name(email):
+    url = f"https://{DBID}-{RID}.apps.astra.datastax.com/api/rest/v2/keyspaces/{KSID}/{USER_TBL}/{email}"
     headers = {
         "Accept": "application/json",
         "X-Cassandra-Token": auth_token,
     }
-    response = requests.request("GET", url, headers=headers)
-    return response.json()["data"][0]["email"]
+    r = requests.get(url, headers=headers)
+    body = _verify(r, 200)
+    if body is None:
+        return None
+    return body["data"][0]["name"]
 
-def add_connection(user1, user2):
-    url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v2/keyspaces/{ksid}/connections/"
+def add_connection(email1, email2):
+    url = f"https://{DBID}-{RID}.apps.astra.datastax.com/api/rest/v2/keyspaces/{KSID}/{CONN_TBL}/"
     headers = {
         "Accept": "application/json",
+        "Content-Type": "application/json",
         "X-Cassandra-Token": auth_token,
     }
+    data = {
+        "email1": email1,
+        "email2": email2
+    }
+    r = requests.post(url, headers=headers, data=json.dumps(data))
+    body = _verify(r, 201)
+    if body is None:
+        return None
+    return True
+
+def remove_connection(email1, email2):
+    url = f"https://{DBID}-{RID}.apps.astra.datastax.com/api/rest/v2/keyspaces/{KSID}/{CONN_TBL}/{email1}/{email2}"
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "X-Cassandra-Token": auth_token,
+    }
+    """
     data = {
         "user1": user1,
         "user2": user2,
     }
-    response = requests.request("POST", url, headers=headers, data=json.dumps(data))
+    """
+    r = requests.delete(url, headers=headers)
+    body = _verify(r, 204)
+    if body is None:
+        return None
     return True
 
-def remove_connection(user1, user2):
-    url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v2/keyspaces/{ksid}/connections/{user1}/{user2}"
-    headers = {
-        "Accept": "application/json",
-        "X-Cassandra-Token": auth_token,
-    }
-    data = {
-        "user1": user1,
-        "user2": user2,
-    }
-    response = requests.request("DELETE", url, headers=headers, data=json.dumps(data))
-    return True
-
-def get_connections(username):
+def get_connections(email):
     print('inside get_connections')
-    url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v2/keyspaces/{ksid}/connections/{username}"
+    url = f"https://{DBID}-{RID}.apps.astra.datastax.com/api/rest/v2/keyspaces/{KSID}/{CONN_TBL}/{email}"
     headers = {
         "Accept": "application/json",
         "X-Cassandra-Token": auth_token,
     }
-    response = requests.request("GET", url, headers=headers)
-    print(response.json())
-    print(response.headers)
-    return [x['user2'] for x in response.json()["data"]]
+    r = requests.get(url, headers=headers)
+    body = _verify(r, 200)
+    if body is None:
+        return None
+    conn_list = []
+    for c in body["data"]:
+        conn_list.append(c['email2'])
+    print(r.json())
+    print(r.headers)
+    return conn_list
 
-def change_connection(username1, username2):
-    if username2 not in get_connections(username1):
+def change_connection(email1, email2):
+    if email2 not in get_connections(email1):
         print("inside here")
-        add_connection(username1, username2)
+        r = add_connection(email1, email2)
     else:
         print("inside there")
         # WHY REMOVING CONNECTION?!?!?!?
-        remove_connection(username1, username2)
+        r = remove_connection(email1, email2)
+    if r is None:
+        return None
     return True
