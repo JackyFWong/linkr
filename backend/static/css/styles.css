@@ -1,20 +1,71 @@
+:root {
+    --c0: #03045E;
+    --c1: #0077B6;
+    --c2: #00B4D8;
+    --c3: #90E0EF;
+    --c4: #CAF0F8;
+    --textdark: #000;
+    --textlight: #FFF;
+}
+
 html, body {
     margin: 0;
     padding: 0;
     height: 100vh;
     width: 100vw;
+
+    background-color: var(--c4);
 }
 
-.full-height {
-    height: 100%;
+a {
+    color: var(--c3);
+    text-decoration: none;
 }
 
-.login-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+#login-left {
+    background-color: var(--c4);
+    color: var(--textdark);
 }
 
-.login-row {
+#login-right {
+    background-color: var(--c0);
+    color: var(--textlight);
+}
+
+.login-format {
+    width: 75%;
+    max-width: 500px;
+}
+
+.register-bkg {
+    background-color: var(--c1);
+    color: var(--textdark);
+}
+
+.btn-branded {
+    color: var(--textlight);
+    background-color: var(--c1);
+    border-color: var(--c1);
+}
+
+.bkg-branded {
+    background-color: var(--c0);
+}
+
+.link-color {
+    color: var(--textlight) !important;
+}
+
+.widget-code {
+    height: 50%;
     width: 100%;
+    margin: 0;
+    margin-top: 2rem;
+    padding: 3em;
+    font-family: monospace;
+
+    border-style: solid;
+    border-width: 2px;
+    border-color: var(--c2);
+    border-radius: 5px;
 }

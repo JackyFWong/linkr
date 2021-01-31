@@ -1,25 +1,29 @@
 {% extends "template.html" %}
 
 {% block content %}
-<div class="container full-height login-wrapper">
-    <div class="row login-row">
-        <div class="col">
-            <h1>E_Link</h1>
-            <p>Welcome to e_link!</p>
+<div class="w-100 h-100">
+    <div class="row w-100 h-100 p-0 m-0">
+        <div id="login-left" class="w-50 h-100 col d-flex justify-content-center align-self-center">
+            <div class="justify-content-center align-self-center login-format">
+                <h1>E_Link</h1>
+                <p>Welcome to e_link!</p>
+            </div>
         </div>
-        <div class="col">
-            <form action="/signup_filled" method="post">
-                <div class="form-group">
-                    <label for="full_name">Full name</label>
-                    <input id="full_name" name="full_name" type="text" class="form-control" placeholder="Full name">
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input id="password" name="password" type="text" class="form-control" placeholder="Password">
-                </div>
-                <button type="submit" name="signin">Login</button>
-            </form>
-            <p><a href="signup">Register</a></p>
+        <div id="login-right" class="w-50 h-100 col d-flex justify-content-center align-self-center">
+            <div class="justify-content-center align-self-center login-format">
+                <form action="/signup_filled" method="post">
+                    <div class="form-group m-2">
+                        <label for="full_name">Full name</label>
+                        <input id="full_name" name="full_name" type="text" class="form-control" placeholder="Full name">
+                    </div>
+                    <div class="form-group m-2">
+                        <label for="password">Password</label>
+                        <input id="password" name="password" type="password" class="form-control" placeholder="Password">
+                    </div>
+                    <button class="btn btn-branded mt-2" type="submit" name="signin">Login</button>
+                </form>
+                <p><a href="signup">Register</a></p>
+            </div>
         </div>
     </div>
 </div>
