@@ -50,24 +50,31 @@ def customize():
     username = session["username"]
     conns = {user:datastax.get_website(username) for user in datastax.get_connections(username)}
     return render_template(
-        "pages/profile.html",
+        "pages/customize.html",
         context={
             'full_name': username,
             'personal_website': datastax.get_website(username),
             'picture_src': datastax.get_image(username),
             'connections': conns,
+            "email": datastax.get_email(username),
         }
     )
 
-@app.route("/update_customization")
+@app.route("/update_customization", methods=["POST"])
 def update_customization():
     username = session["username"]
+    print(request.form)
     if "email" in request.form:
-        datastax.set_email(username, request.form["email"])
+        if request.form["email"] != "":
+            datastax.set_email(username, request.form["email"])
     if "personal_website" in request.form:
-        datastax.set_website(username, request.form["personal_website"])
+        if request.form["personal_website"] != "":
+            datastax.set_website(username, request.form["personal_website"])
     if "picture_src" in request.form:
-        datastax.set_image(username, request.form["picture_src"])
+        print("Has picture src")
+        if request.form["picture_src"] != "":
+            print("set picture src")
+            datastax.set_image(username, request.form["picture_src"])
     flash("Updated.")
     return redirect(url_for('customize'))
 
@@ -84,22 +91,22 @@ def login_or_register():
     password = request.form.get("password", "")
     email = request.form.get("email", "")
     if "signin" in request.form:
+        print("Trying to sign in!")
         if datastax.has_account(username):
-            if datastax.check_credentials_email(email, password):
+            if datastax.check_credentials(username, password):
                 session["username"] = username
                 return redirect(url_for("customize"))
     if "register" in request.form:
         if datastax.username_free(username):
-            datastax.make_account(username, password)
+            datastax.make_account(username, password, email, "", "")
             session["username"] = username
-            datastax.set_email(username, email)
             return redirect(url_for("customize"))
             return render_template(
                 "pages/signed_up.html",
                 context={"username":username}
             )
     flash("Invalid credientials.")
-    return redirect(url_for('customize'))
+    return redirect(url_for('index'))
 
 @app.route("/set_website", methods=["POST"])
 def set_website():

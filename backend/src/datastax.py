@@ -37,6 +37,7 @@ def has_account(username):
     return not username_free(username)
 
 def make_account(username, password, email, website, image):
+    password = sha256_crypt.encrypt(salt+password+salt)
     url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v2/keyspaces/{ksid}/users/"
     headers = {
         "Accept": "application/json",
@@ -151,7 +152,7 @@ def remove_connection(user1, user2):
     return True
 
 def get_connections(username):
-    url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v2/keyspaces/{ksid}/connections/{user}"
+    url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v2/keyspaces/{ksid}/connections/{username}"
     headers = {
         "Accept": "application/json",
         "X-Cassandra-Token": auth_token,
