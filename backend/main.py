@@ -47,14 +47,15 @@ def profile():
 
 @app.route("/customize")
 def customize():
+    username = session["username"]
+    conns = {user:datastax.get_website(username) for user in datastax.get_connections(username)}
     return render_template(
-        "pages/customize.html",
+        "pages/profile.html",
         context={
-            'full_name': 'Bob Jones',
-            'email': 'hi@bobjones.com',
-            'picture_src': 'https://cdn.pixabay.com/photo/2021/01/06/21/50/couple-5895728_960_720.jpg',
-            'personal_website': 'bobjones.com',
-            'theme': 'Light'
+            'full_name': username,
+            'personal_website': datastax.get_website(username),
+            'picture_src': datastax.get_image(username),
+            'connections': conns,
         }
     )
 
@@ -79,17 +80,19 @@ def widget():
 
 @app.route("/signup_filled", methods=["POST"])
 def login_or_register():
-    username = request.form.get("username", "")
+    username = request.form.get("full_name", "")
     password = request.form.get("password", "")
+    email = request.form.get("email", "")
     if "signin" in request.form:
         if datastax.has_account(username):
-            if datastax.check_credentials(username, password):
+            if datastax.check_credentials_email(email, password):
                 session["username"] = username
                 return redirect(url_for("customize"))
     if "register" in request.form:
         if datastax.username_free(username):
             datastax.make_account(username, password)
             session["username"] = username
+            datastax.set_email(username, email)
             return redirect(url_for("customize"))
             return render_template(
                 "pages/signed_up.html",
