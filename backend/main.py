@@ -92,17 +92,19 @@ def widget():
 def widget_template(email):
     print('here!!!')
     conns = {
-        user: {
-            "name": datastax.get_name(email),
+        user_email: {
+            "name": datastax.get_name(user_email),
             "picture_src": datastax.get_image(email),
             "personal_website": datastax.get_website(email),
-        }  for user in datastax.get_connections(email)
+        }  for user_email in datastax.get_connections(email)
     }
     print(conns)
     t = render_template(
         "widget.js",
         context={
             'email': email,
+            'has_account': 'true' if datastax.has_account(email) else 'false',
+            'name': datastax.get_name(email),
             'personal_website': datastax.get_website(email),
             'picture_src': datastax.get_image(email),
             'connections': conns,
@@ -171,6 +173,7 @@ def change_connection():
     print(response.headers)
     return response
     #return jsonify({"worked": False})
+
 
 if __name__ == "__main__":
     app.run()
