@@ -85,7 +85,9 @@ def update_customization():
 def widget():
     return render_template(
         "pages/widget.html",
-        context={}
+        context={
+            "url_username": session["username"].replace(" ", "%20")
+        }
     )
 
 @app.route("/widget_info/<username>")
