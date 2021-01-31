@@ -1,0 +1,1 @@
+gunicorn backend.main:app
