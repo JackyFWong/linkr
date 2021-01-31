@@ -20,9 +20,18 @@ function connect_users(user) {
 		});
 }
 
+function join_email()
+
+function email_wrapper(sender, reciever) {
+	// send linkr join email
+
+	// send connection request email
+
+}
+
 $(document).ready( () => {
 	console.log(context);
-	var widget_div = $("#elink_template");
+	var widget_div = $("#linkr_template");
 	
 	var header = $("<h3>"+context.full_name+"</h3>");
 	var connect_button = $("<button onclick='connect_users(\""+username+"\")'>Connect</button>");

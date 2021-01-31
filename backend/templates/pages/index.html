@@ -5,20 +5,22 @@
     <div class="row w-100 h-100 p-0 m-0">
         <div id="login-left" class="w-50 h-100 col d-flex justify-content-center align-self-center">
             <div class="justify-content-center align-self-center login-format">
-                <h1>E_Link</h1>
-                <p>Welcome to e_link!</p>
+                <h1>Linkr</h1>
+                <p>Welcome to Linkr! This service helps link professionals
+                    together via an easy-to-use HTML widget!
+                </p>
             </div>
         </div>
         <div id="login-right" class="w-50 h-100 col d-flex justify-content-center align-self-center">
             <div class="justify-content-center align-self-center login-format">
                 <form action="/signup_filled" method="post">
                     <div class="form-group m-2">
-                        <label for="full_name">Full name</label>
-                        <input id="full_name" name="full_name" type="text" class="form-control" placeholder="Full name">
+                        <label for="email">Email</label>
+                        <input id="email" name="email" type="text" class="form-control" placeholder="Email" required>
                     </div>
                     <div class="form-group m-2">
                         <label for="password">Password</label>
-                        <input id="password" name="password" type="password" class="form-control" placeholder="Password">
+                        <input id="password" name="password" type="password" class="form-control" placeholder="Password" required>
                     </div>
                     <button class="btn btn-branded mt-2" type="submit" name="signin">Login</button>
                 </form>
