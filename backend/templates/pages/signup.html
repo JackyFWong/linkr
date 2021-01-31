@@ -4,7 +4,7 @@
 <div class="container d-flex h-100">
     <div class="row justify-content-center align-self-center">
         <h2>Account Creation</h2>
-        <form>
+        <form action="/signup_filled" method="post">
             <label for="full_name">Full name</label>
             <input id="full_name" type="text" class="form-control" placeholder="Name">
             <label for="email">Email</label>
@@ -13,7 +13,7 @@
             <input id="password" type="password" class="form-control" placeholder="Password">
             <label for="confirm_password">Confirm password</label>
             <input id="confirm_password" type="password" class="form-control" placeholder="Confirm password">
-            <button type="submit">Submit</button>
+            <button type="submit" name="register">Submit</button>
         </form>
     </div>
 </div>
