@@ -23,19 +23,21 @@ auth_response = requests.post(auth_url, headers=auth_headers, data=json.dumps(au
 auth_token = auth_response.json()["authToken"]
 
 
-def username_free(user):
-    url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v2/keyspaces/{ksid}/users/{user}"
+def username_free(username):
+    url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v2/keyspaces/{ksid}/users/{username}"
     headers = {
         "Accept": "application/json",
         "X-Cassandra-Token": auth_token,
     }
     response = requests.request("GET", url, headers=headers)
+    print(response.json())
     return response.json()["count"] == 0
 
 def has_account(username):
     return not username_free(username)
 
 def make_account(username, password, email, website, image):
+    password = sha256_crypt.encrypt(salt+password+salt)
     url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v2/keyspaces/{ksid}/users/"
     headers = {
         "Accept": "application/json",
@@ -102,6 +104,27 @@ def get_website(username):
     response = requests.request("GET", url, headers=headers)
     return response.json()["data"][0]["website"]
 
+def set_email(username, email):
+    url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v2/keyspaces/{ksid}/users/{username}"
+    headers = {
+        "Accept": "application/json",
+        "X-Cassandra-Token": auth_token,
+    }
+    data = {
+        "email": email
+    }
+    response = requests.request("PATCH", url, headers=headers, data=json.dumps(data))
+    return response.json()
+
+def get_email(username):
+    url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v2/keyspaces/{ksid}/users/{username}"
+    headers = {
+        "Accept": "application/json",
+        "X-Cassandra-Token": auth_token,
+    }
+    response = requests.request("GET", url, headers=headers)
+    return response.json()["data"][0]["email"]
+
 def add_connection(user1, user2):
     url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v2/keyspaces/{ksid}/connections/"
     headers = {
@@ -129,7 +152,7 @@ def remove_connection(user1, user2):
     return True
 
 def get_connections(username):
-    url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v2/keyspaces/{ksid}/connections/{user}"
+    url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v2/keyspaces/{ksid}/connections/{username}"
     headers = {
         "Accept": "application/json",
         "X-Cassandra-Token": auth_token,

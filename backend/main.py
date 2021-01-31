@@ -1,6 +1,6 @@
 """
 main.py
-==============
+=======
 """
 
 from flask import (
@@ -33,32 +33,50 @@ def signup():
 
 @app.route("/profile")
 def profile():
+    username = session["username"]
+    conns = {user:datastax.get_website(username) for user in datastax.get_connections(username)}
     return render_template(
         "pages/profile.html",
         context={
-            'full_name': 'Bob Jones',
-            'personal_website': 'bobjones.com',
-            'picture_src': 'https://cdn.pixabay.com/photo/2021/01/06/21/50/couple-5895728_960_720.jpg',
-            'connections': {
-                'User One': 'userone.com',
-                'User Two': 'usertwo.com',
-                'User Three': 'userthree.com'
-                }
-            }
+            'full_name': username,
+            'personal_website': datastax.get_website(username),
+            'picture_src': datastax.get_image(username),
+            'connections': conns,
+        }
     )
 
 @app.route("/customize")
 def customize():
+    username = session["username"]
+    conns = {user:datastax.get_website(username) for user in datastax.get_connections(username)}
     return render_template(
         "pages/customize.html",
         context={
-            'full_name': 'Bob Jones',
-            'email': 'hi@bobjones.com',
-            'picture_src': 'https://cdn.pixabay.com/photo/2021/01/06/21/50/couple-5895728_960_720.jpg',
-            'personal_website': 'bobjones.com',
-            'theme': 'Light'
+            'full_name': username,
+            'personal_website': datastax.get_website(username),
+            'picture_src': datastax.get_image(username),
+            'connections': conns,
+            "email": datastax.get_email(username),
         }
     )
+
+@app.route("/update_customization", methods=["POST"])
+def update_customization():
+    username = session["username"]
+    print(request.form)
+    if "email" in request.form:
+        if request.form["email"] != "":
+            datastax.set_email(username, request.form["email"])
+    if "personal_website" in request.form:
+        if request.form["personal_website"] != "":
+            datastax.set_website(username, request.form["personal_website"])
+    if "picture_src" in request.form:
+        print("Has picture src")
+        if request.form["picture_src"] != "":
+            print("set picture src")
+            datastax.set_image(username, request.form["picture_src"])
+    flash("Updated.")
+    return redirect(url_for('customize'))
 
 @app.route("/widget")
 def widget():
@@ -69,26 +87,26 @@ def widget():
 
 @app.route("/signup_filled", methods=["POST"])
 def login_or_register():
-    username = request.form.get("username", "")
+    username = request.form.get("full_name", "")
     password = request.form.get("password", "")
+    email = request.form.get("email", "")
     if "signin" in request.form:
+        print("Trying to sign in!")
         if datastax.has_account(username):
             if datastax.check_credentials(username, password):
                 session["username"] = username
-                return render_template(
-                    "pages/signed_up.html",
-                    context={"username":username}
-                )
+                return redirect(url_for("customize"))
     if "register" in request.form:
         if datastax.username_free(username):
-            datastax.make_account(username, password)
+            datastax.make_account(username, password, email, "", "")
             session["username"] = username
+            return redirect(url_for("customize"))
             return render_template(
                 "pages/signed_up.html",
                 context={"username":username}
             )
     flash("Invalid credientials.")
-    return redirect(url_for('signup_login'))
+    return redirect(url_for('index'))
 
 @app.route("/set_website", methods=["POST"])
 def set_website():

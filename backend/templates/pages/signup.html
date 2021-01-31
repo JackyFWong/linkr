@@ -4,7 +4,7 @@
 <div class="container d-flex h-100">
     <div class="row justify-content-center align-self-center">
         <h2>Account Creation</h2>
-        <form onsubmit="return validatePassword()">
+        <form onsubmit="return validatePassword()" action="/signup_filled" method="post">
             <div class="form-group">
                 <label for="full_name">Full name</label>
                 <input id="full_name" name="full_name" type="text" class="form-control" placeholder="Name">
@@ -21,7 +21,7 @@
                 <label for="confirm_password">Confirm password</label>
                 <input id="confirm_password" type="password" class="form-control" placeholder="Confirm password">
             </div>
-            <button type="submit" name="signin">Submit</button>
+            <button type="submit" name="register">Submit</button>
         </form>
     </div>
 </div>
@@ -30,3 +30,4 @@
 {% block footer %}
 <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
 {% endblock %}
+

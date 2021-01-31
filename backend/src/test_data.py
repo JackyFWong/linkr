@@ -32,5 +32,15 @@ def select_row_from_table(table_name, prim_key):
     response = requests.request("GET", url, headers=headers, data=json.dumps(body))
     pprint(response.json())
 
+def username_free(username):
+    url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v2/keyspaces/{ksid}/users/{username}"
+    headers = {
+        "Accept": "application/json",
+        "X-Cassandra-Token": auth_token,
+    }
+    response = requests.request("GET", url, headers=headers)
+    print(response.json())
+    return response.json()["count"] == 0
 
-print(delete_connection("a", "c"))
+
+print(username_free("Harrison"))
