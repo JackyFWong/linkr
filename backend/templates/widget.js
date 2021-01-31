@@ -11,7 +11,7 @@ function connect_users(user) {
 	});*/
 	$.ajax({
         type: "POST",
-        url: "http://127.0.0.1:5000/change_connection",
+        url: "https://e-links.herokuapp.com/change_connection",
 		data: JSON.stringify({"username": user, "other_user": other_user}),
 		contentType: "application/json",
         //async:true,

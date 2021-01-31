@@ -13,7 +13,7 @@ from json import dumps, loads
 import traceback
 from passlib.hash import sha256_crypt
 
-from src import datastax
+from .src import datastax
 
 app = Flask(__name__, template_folder="./templates", static_folder="./static")
 app.config['CORS_HEADERS'] = 'Content-Type'
