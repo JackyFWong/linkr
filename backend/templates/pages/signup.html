@@ -1,27 +1,27 @@
 {% extends "template.html" %}
 
 {% block content %}
-<div class="container d-flex h-100">
+<div class="container d-flex h-100 main">
     <div class="row justify-content-center align-self-center">
         <h2>Account Creation</h2>
         <form onsubmit="return validatePassword()" action="/signup_filled" method="post">
-            <div class="form-group">
+            <div class="form-group m-2">
                 <label for="full_name">Full name</label>
                 <input id="full_name" name="full_name" type="text" class="form-control" placeholder="Name">
             </div>
-            <div class="form-group">
+            <div class="form-group m-2">
                 <label for="email">Email</label>
                 <input id="email" name="email" type="text" class="form-control" placeholder="Email">
             </div>
-            <div class="form-group">
+            <div class="form-group m-2">
                 <label for="password">Password</label>
                 <input id="password" name="password" type="password" class="form-control" placeholder="Password">
             </div>
-            <div class="form-group">
+            <div class="form-group m-2">
                 <label for="confirm_password">Confirm password</label>
                 <input id="confirm_password" type="password" class="form-control" placeholder="Confirm password">
             </div>
-            <button type="submit" name="register">Submit</button>
+            <button class="btn btn-branded mt-2" type="submit" name="register">Submit</button>
         </form>
     </div>
 </div>

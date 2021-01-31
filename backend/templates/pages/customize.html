@@ -1,29 +1,29 @@
 {% extends "logged_in_template.html" %}
 
 {% block content %}
-<div class="mt-2 container d-flex justify-content-center align-self-center">
+<div class="mt-5 container d-flex justify-content-center align-self-center">
     <div class="row">
         <h2>Profile</h2>
         <form action="/update_customization" method="post">
-		  <!--
+            <!--
             <div class="form-group">
                 <label for="full_name">Full name</label>
                 <input id="full_name" name="full_name" type="text" class="form-control" placeholder="{{ context.full_name }}">
             </div>
 			-->
-            <div class="form-group">
+            <div class="form-group m-2">
                 <label for="email">Email</label>
                 <input id="email" name="email" type="text" class="form-control" placeholder="{{ context.email }}">
             </div>
-            <div class="form-group">
+            <div class="form-group m-2">
                 <label for="picture_src">Picture URL</label>
                 <input id="picture_src" name="picture_src" type="text" class="form-control" placeholder="{{ context.picture_src }}">
             </div>
-            <div class="form-group">
+            <div class="form-group m-2">
                 <label for="personal_website">Website URL</label>
                 <input id="personal_website" name="personal_website" type="text" class="form-control" placeholder="{{ context.personal_website }}">
             </div>
-            <div class="form-group">
+            <div class="form-group m-2">
                 <label for="theme">Widget Theme</label>
                 <select id="theme" name="theme">
                     <option value="" selected disabled hidden>{{ context.theme }}</option> 
@@ -31,7 +31,7 @@
                     <option value="dark">Dark</option>
                 </select>
             </div>
-            <button class="btn btn-primary" type="submit">Submit</button>
+            <button class="btn btn-branded mt-2" type="submit">Submit</button>
         </form>
     </div>
 </div>
