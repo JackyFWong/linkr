@@ -3,24 +3,24 @@ import requests
 import json
 
 salt = "!LINKEDIN"
-default_website = "https://www.google.com"
+default_website = "https://cuhack.it/"
 
 dbid = "36978354-cbaf-430d-8995-12d491564a45"
 rid = "us-east1"
 ksid = "e_link"
 
-url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v1/auth"
-headers = {
+auth_url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v1/auth"
+auth_headers = {
     "Accept": "application/json",
     "Content-Type": "application/json",
     "X-Cassandra-Request-Id":"7d86a16e-9407-4089-9f8c-cb968e89b2cc"
 }
-body = {
+auth_body = {
     "username":"e_link",
     "password":"Z8f7*yFvZVoPWYsqLN8q"
 }
-response = requests.post(url, headers=headers, data=json.dumps(body))
-auth_token = response.json()["authToken"]
+auth_response = requests.post(auth_url, headers=auth_headers, data=json.dumps(auth_body))
+auth_token = auth_response.json()["authToken"]
 
 
 def username_free(user):
@@ -35,7 +35,7 @@ def username_free(user):
 def has_account(username):
     return not username_free(username)
 
-def make_account(username, password, email, website):
+def make_account(username, password, email, website, image):
     url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v2/keyspaces/{ksid}/users/"
     headers = {
         "Accept": "application/json",
@@ -45,7 +45,8 @@ def make_account(username, password, email, website):
         "username": username,
         "password": password,
         "email": email,
-        "website": website
+        "website": website,
+        "image": image
     }
     response = requests.request("POST", url, headers=headers, data=json.dumps(data))
     return True
@@ -58,6 +59,27 @@ def check_credentials(username, password):
     }
     response = requests.request("GET", url, headers=headers)
     return sha256_crypt.verify(salt+password+salt, response.json()["data"][0]["password"])
+
+def set_image(username, image):
+    url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v2/keyspaces/{ksid}/users/{username}"
+    headers = {
+        "Accept": "application/json",
+        "X-Cassandra-Token": auth_token,
+    }
+    data = {
+        "image": image
+    }
+    response = requests.request("PATCH", url, headers=headers, data=json.dumps(data))
+    return response.json()
+
+def get_image(username):
+    url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v2/keyspaces/{ksid}/users/{username}"
+    headers = {
+        "Accept": "application/json",
+        "X-Cassandra-Token": auth_token,
+    }
+    response = requests.request("GET", url, headers=headers)
+    return response.json()["data"][0]["image"]
 
 def set_website(username, website):
     url = f"https://{dbid}-{rid}.apps.astra.datastax.com/api/rest/v2/keyspaces/{ksid}/users/{username}"
