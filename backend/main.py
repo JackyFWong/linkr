@@ -13,7 +13,7 @@ from json import dumps, loads
 import traceback
 from passlib.hash import sha256_crypt
 
-from .src import datastax
+from src import datastax
 
 app = Flask(__name__, template_folder="./templates", static_folder="./static")
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -98,7 +98,6 @@ def widget_template(email):
             "personal_website": datastax.get_website(email),
         }  for user_email in datastax.get_connections(email)
     }
-    print(conns)
     t = render_template(
         "widget.js",
         context={
@@ -173,6 +172,15 @@ def change_connection():
     print(response.headers)
     return response
     #return jsonify({"worked": False})
+
+@app.route("/add_connection", methods=["POST"])
+def add_connection():
+    email1 = request.json.get("email1", "")
+    email2 = request.json.get("email2", "")
+    print("TRYING TO ADD CONNECTION")
+    print(request.get_json())
+    datastax.add_connection(email1, email2)
+    redirect("google.com")
 
 
 if __name__ == "__main__":

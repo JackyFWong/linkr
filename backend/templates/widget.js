@@ -45,7 +45,9 @@ function conn_email(sender_email, sender_name, reciever_email, reciever_name) {
 		email: " + sender_email + ". Let's link up! Thank you, " + sender_name
 	}).then(
 		message => alert(message)
-	);
+	).catch(
+		error => console.log(error)
+		);
 }
 
 function email_wrapper() {
@@ -65,11 +67,25 @@ function email_wrapper() {
 	conn_email(sender_email, sender_name, reciever_email, reciever_name);
 }
 
+function add_connection() {
+	console.log("inside js connection");
+	var sender_email = $("#s_email").val();
+	console.log(sender_email);
+	$.ajax({
+        type: "POST",
+        url: "https://127.0.0.1:5000/add_connection",
+		data: JSON.stringify({"email1": sender_email, "email2": email}),
+		contentType: "application/json",
+        //async:true,
+        //dataType : 'jsonp',   //you may use jsonp for cross origin request
+		});
+}
+
 $(document).ready( () => {
 	console.log(context);
 	var widget_div = $("#linkr_template");
 	
-	var content = $("<table style=\'width:200px;\'> \
+	/*var content = $("<table style=\'width:200px;\'> \
 	<tr> \
 		<td>" + user_name + "</td> \
 		<td><div style=\'display:inline-block;background:url(\"" + img_src + "\") center center/50px auto no-repeat;width:50px;height:50px;\'></div></td> \
@@ -77,6 +93,21 @@ $(document).ready( () => {
 	<tr> \
 		<td colspan=\'2\'> \
 			<form onsubmit=\'email_wrapper();\'> \
+				<input id=\'s_name\' name=\'s_name\' type=\'text\' placeholder=\'Name\' required> \
+				<input id=\'s_email\' name=\'s_email\' type=\'text\' placeholder=\'Email\' required> \
+				<button type=\'submit\'>Link up!</button> \
+			</form> \
+		</td> \
+	</tr> \
+	</table>");*/
+	var content = $("<table style=\'width:200px;\'> \
+	<tr> \
+		<td>" + user_name + "</td> \
+		<td><div style=\'display:inline-block;background:url(\"" + img_src + "\") center center/50px auto no-repeat;width:50px;height:50px;\'></div></td> \
+	</tr> \
+	<tr> \
+		<td colspan=\'2\'> \
+			<form onsubmit=\'add_connection();\'> \
 				<input id=\'s_name\' name=\'s_name\' type=\'text\' placeholder=\'Name\' required> \
 				<input id=\'s_email\' name=\'s_email\' type=\'text\' placeholder=\'Email\' required> \
 				<button type=\'submit\'>Link up!</button> \
